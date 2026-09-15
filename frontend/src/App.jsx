@@ -1,6 +1,8 @@
-import { Navigate, Route, Routes, useParams } from 'react-router-dom'
+import { Link, Navigate, Route, Routes, useParams } from 'react-router-dom'
+import AdminRoute from './components/AdminRoute'
 import ProtectedRoute from './components/ProtectedRoute'
 import { useAuth } from './context/useAuth'
+import CreateSurvey from './pages/CreateSurvey'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import SurveyDetail from './pages/SurveyDetail'
@@ -8,15 +10,24 @@ import Surveys from './pages/Surveys'
 import './App.css'
 
 function NavBar() {
-  const { isAuthenticated, logout } = useAuth()
+  const { isAuthenticated, isStaff, logout } = useAuth()
   if (!isAuthenticated) return null
 
   return (
     <nav className="navbar">
-      <span className="brand">vote-sys</span>
-      <button type="button" onClick={logout}>
-        Log out
-      </button>
+      <Link to="/surveys" className="brand">
+        vote-sys
+      </Link>
+      <div className="navbar-actions">
+        {isStaff && (
+          <Link to="/surveys/new" className="nav-link">
+            New survey
+          </Link>
+        )}
+        <button type="button" onClick={logout}>
+          Log out
+        </button>
+      </div>
     </nav>
   )
 }
@@ -36,6 +47,9 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/surveys" element={<Surveys />} />
           <Route path="/surveys/:id" element={<SurveyDetailRoute />} />
+          <Route element={<AdminRoute />}>
+            <Route path="/surveys/new" element={<CreateSurvey />} />
+          </Route>
         </Route>
         <Route path="*" element={<Navigate to="/surveys" replace />} />
       </Routes>

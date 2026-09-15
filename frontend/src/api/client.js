@@ -17,6 +17,22 @@ export function clearTokens() {
   localStorage.removeItem('refresh')
 }
 
+function decodeToken(token) {
+  try {
+    const payload = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+    return JSON.parse(atob(payload))
+  } catch {
+    return null
+  }
+}
+
+export function getCurrentUser() {
+  const { access } = getTokens()
+  if (!access) return null
+  const payload = decodeToken(access)
+  return payload ? { isStaff: !!payload.is_staff } : null
+}
+
 async function refreshAccessToken() {
   const { refresh } = getTokens()
   if (!refresh) return null
@@ -109,4 +125,11 @@ export function submitVote(choiceId) {
 
 export function getSurveyResults(surveyId) {
   return apiRequest(`/surveys/${surveyId}/results/`)
+}
+
+export function createSurvey(payload) {
+  return apiRequest('/surveys/create/', {
+    method: 'POST',
+    body: payload,
+  })
 }

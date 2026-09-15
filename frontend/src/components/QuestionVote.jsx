@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { getSurveyResults, submitVote } from '../api/client'
 
-export default function QuestionVote({ surveyId, question }) {
+export default function QuestionVote({ surveyId, question, index = 0, onVoted }) {
   const [selected, setSelected] = useState(question.allow_multiple ? [] : null)
   const [status, setStatus] = useState('idle') // idle | submitting | voted
   const [error, setError] = useState('')
@@ -39,6 +39,7 @@ export default function QuestionVote({ surveyId, question }) {
         })
       setCounts(questionCounts)
       setStatus('voted')
+      onVoted?.(question.id)
     } catch (err) {
       setError(err.message)
       setStatus('idle')
@@ -46,7 +47,7 @@ export default function QuestionVote({ surveyId, question }) {
   }
 
   return (
-    <div className="question-card">
+    <div className="question-card pop-in" style={{ animationDelay: `${index * 150}ms` }}>
       <h2>{question.title}</h2>
       {question.description && <p className="muted">{question.description}</p>}
       {error && <p className="error">{error}</p>}
